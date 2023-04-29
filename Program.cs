@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using PortfolioAPI.Data;
 using PortfolioAPI.Middleware;
 
@@ -7,11 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+string corsUrl = Environment.GetEnvironmentVariable("CORS_URL") ?? string.Empty;
 builder.Services.AddCors(options => 
 {
     options.AddDefaultPolicy(policy => 
     {
-        policy.WithOrigins("http://localhost:8080")
+        policy.WithOrigins(corsUrl)
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
@@ -38,6 +41,15 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<PortfolioContext>();
     context.Database.EnsureCreated();
+}
+
+if (!app.Environment.IsDevelopment())
+{
+    // Set up reverse proxy settings for prod environment
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
 }
 
 app.UseHttpsRedirection();

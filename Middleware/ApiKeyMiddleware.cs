@@ -3,14 +3,12 @@ namespace PortfolioAPI.Middleware
     public class ApiKeyMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IConfiguration _config;
         private readonly ILogger<ApiKeyMiddleware> _logger;
         private const string APIKEY = "x-api-key";
 
-        public ApiKeyMiddleware(RequestDelegate next, IConfiguration config, ILogger<ApiKeyMiddleware> logger)
+        public ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
         {
             _next = next;
-            _config = config;
             _logger = logger;
         }
 
@@ -26,8 +24,8 @@ namespace PortfolioAPI.Middleware
                     return;
                 }
 
-                string apiKey = _config.GetValue<string>(APIKEY);
-                if (!apiKey.Equals(extractedApiKey))
+                string apiKey = Environment.GetEnvironmentVariable(APIKEY) ?? string.Empty;
+                if ((!string.IsNullOrEmpty(apiKey)) && (!apiKey.Equals(extractedApiKey)))
                 {
                     // Key provided was incorrect
                     context.Response.StatusCode = 401;
