@@ -4,7 +4,6 @@ namespace PortfolioAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<ApiKeyMiddleware> _logger;
-        private const string APIKEY = "x-api-key";
 
         public ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
         {
@@ -16,7 +15,7 @@ namespace PortfolioAPI.Middleware
         {
             try {
 
-                if (!context.Request.Headers.TryGetValue(APIKEY, out var extractedApiKey))
+                if (!context.Request.Headers.TryGetValue("x-api-key", out var extractedApiKey))
                 {
                     // Key was not present in the request headers
                     context.Response.StatusCode = 401;
@@ -24,7 +23,7 @@ namespace PortfolioAPI.Middleware
                     return;
                 }
 
-                string apiKey = Environment.GetEnvironmentVariable(APIKEY) ?? string.Empty;
+                string apiKey = Environment.GetEnvironmentVariable("API_KEY") ?? string.Empty;
                 if ((!string.IsNullOrEmpty(apiKey)) && (!apiKey.Equals(extractedApiKey)))
                 {
                     // Key provided was incorrect
