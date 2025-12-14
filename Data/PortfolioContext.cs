@@ -3,17 +3,12 @@ using PortfolioAPI.Models;
 
 namespace PortfolioAPI.Data 
 {
-    public class PortfolioContext : DbContext
+    public class PortfolioContext(IConfiguration config) : DbContext
     {
-        private readonly IConfiguration _config;
+        private readonly IConfiguration _config = config;
         public DbSet<Education> Educations => Set<Education>();
         public DbSet<Experience> Experiences => Set<Experience>();
         public DbSet<Employment> Employments => Set<Employment>();
-
-        public PortfolioContext(IConfiguration config)
-        {
-            _config = config;
-        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

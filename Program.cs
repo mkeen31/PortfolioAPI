@@ -28,6 +28,11 @@ builder.Services.AddDbContext<PortfolioContext>(options =>
 
 var app = builder.Build();
 
+app.UseExceptionHandler(handler =>
+{
+    handler.Run(async context => await Results.Problem().ExecuteAsync(context));
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

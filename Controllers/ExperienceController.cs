@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PortfolioAPI.Data;
@@ -5,52 +6,32 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class ExperienceController : ControllerBase
+[Route("api/experience")]
+public class ExperienceController(PortfolioContext dbContext) : ControllerBase
 {
-    private readonly ILogger<ExperienceController> _logger;
-    private readonly PortfolioContext _context;
-
-    public ExperienceController(ILogger<ExperienceController> logger, PortfolioContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    private readonly PortfolioContext _dbContext = dbContext;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        try
+
+        var experience = await _dbContext.Experiences.FirstOrDefaultAsync(x => x.Id == id);
+        if (experience == null)
         {
-            var experience = await _context.Experiences.FirstOrDefaultAsync(x => x.Id == id);
-            if (experience == null)
-            {
-                return NotFound();
-            }
-            return new JsonResult(experience);
+            return Problem("Record not found.", statusCode: StatusCodes.Status404NotFound);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(0, ex, ex.Message);
-            return StatusCode(500);
-        }
+        return Ok(experience);
+        
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var experiences = await _context.Experiences.ToListAsync();
-            return new JsonResult(experiences);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(0, ex, ex.Message);
-            return StatusCode(500);
-        }
+        var experiences = await _dbContext.Experiences.ToListAsync();
+        return Ok(experiences);
     }
 
+    [Authorize]
     [HttpPost("[action]")]
     public IActionResult Add()
     {

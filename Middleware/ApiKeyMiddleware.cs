@@ -1,15 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+
 namespace PortfolioAPI.Middleware
 {
-    public class ApiKeyMiddleware
+    public class ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ApiKeyMiddleware> _logger;
-
-        public ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
-        {
-            _next = next;
-            _logger = logger;
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<ApiKeyMiddleware> _logger = logger;
 
         public async Task InvokeAsync(HttpContext context)
         {
@@ -19,7 +16,8 @@ namespace PortfolioAPI.Middleware
                 {
                     // Key was not present in the request headers
                     context.Response.StatusCode = 401;
-                    await context.Response.WriteAsJsonAsync(new {success = false, error = "API key was not provided."});
+                    var problemDetails = GetProblemDetails("API key was not provided.", 401, context);
+                    await context.Response.WriteAsJsonAsync(problemDetails);
                     return;
                 }
 
@@ -28,7 +26,8 @@ namespace PortfolioAPI.Middleware
                 {
                     // Key provided was incorrect
                     context.Response.StatusCode = 401;
-                    await context.Response.WriteAsJsonAsync(new {success = false, error = "The provided API key is incorrect."});
+                    var problemDetails = GetProblemDetails("The provided API key is incorrect.", 401, context);
+                    await context.Response.WriteAsJsonAsync(problemDetails);
                     return;
                 }
             }
@@ -37,11 +36,22 @@ namespace PortfolioAPI.Middleware
             {
                 _logger.LogError(0, ex, ex.Message);
                 context.Response.StatusCode = 500;
-                await context.Response.WriteAsJsonAsync(new {success = false, error = "An internal server error has occurred."});
+                var problemDetails = GetProblemDetails("An internal server error has occurred.", 500, context);
+                await context.Response.WriteAsJsonAsync(problemDetails);
                 return;
             }
 
             await _next(context);
+        }
+
+        private static ProblemDetails GetProblemDetails(string errorDescription, int statusCode, HttpContext httpContext)
+        {
+            return new ProblemDetails
+            {
+                Title = ReasonPhrases.GetReasonPhrase(statusCode),
+                Detail = errorDescription,
+                Instance = httpContext.Request.Path
+            };
         }
     }
 }
