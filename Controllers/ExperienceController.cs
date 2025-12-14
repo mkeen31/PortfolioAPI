@@ -6,7 +6,7 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/experience")]
+[Route("api/[controller]")]
 public class ExperienceController(PortfolioContext dbContext) : ControllerBase
 {
     private readonly PortfolioContext _dbContext = dbContext;
@@ -18,7 +18,7 @@ public class ExperienceController(PortfolioContext dbContext) : ControllerBase
         var experience = await _dbContext.Experiences.FirstOrDefaultAsync(x => x.Id == id);
         if (experience == null)
         {
-            return Problem("Record not found.", statusCode: StatusCodes.Status404NotFound);
+            return NotFound();
         }
         return Ok(experience);
         

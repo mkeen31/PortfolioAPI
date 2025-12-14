@@ -18,7 +18,7 @@ public class EducationController(PortfolioContext dbContext) : ControllerBase
         var education = await _dbContext.Educations.FirstOrDefaultAsync(x => x.Id == id);
         if (education == null)
         {
-            return Problem("Record not found.", statusCode: StatusCodes.Status404NotFound);
+            return NotFound();
         }
         return Ok(education);
 

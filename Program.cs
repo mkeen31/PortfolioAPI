@@ -22,9 +22,11 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<PortfolioContext>(options => 
+builder.Services.AddDbContext<PortfolioContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PortfolioContext"))
 );
+
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -32,6 +34,8 @@ app.UseExceptionHandler(handler =>
 {
     handler.Run(async context => await Results.Problem().ExecuteAsync(context));
 });
+
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

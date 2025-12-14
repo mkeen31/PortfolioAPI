@@ -7,9 +7,8 @@ namespace PortfolioAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EmploymentController(ILogger<EmploymentController> logger, PortfolioContext dbContext) : ControllerBase
+public class EmploymentController(PortfolioContext dbContext) : ControllerBase
 {
-    private readonly ILogger<EmploymentController> _logger = logger;
     private readonly PortfolioContext _dbContext = dbContext;
 
     [HttpGet("{id}")]
@@ -18,7 +17,7 @@ public class EmploymentController(ILogger<EmploymentController> logger, Portfoli
         var employment = await _dbContext.Employments.FirstOrDefaultAsync(x => x.Id == id);
         if (employment == null)
         {
-            return Problem("Record not found.", statusCode: StatusCodes.Status404NotFound);
+            return NotFound();
         }
         return Ok(employment);
         
