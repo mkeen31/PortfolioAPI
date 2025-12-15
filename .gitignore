@@ -199,3 +199,7 @@ $RECYCLE.BIN/
 
 #Development appsettings
 appsettings.Development.json
+
+# Environment files
+.env
+.env.database

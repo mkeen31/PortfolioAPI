@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    links:
+      - "db:database"
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: postgres:18
+    restart: always
+    shm_size: 128mb
+    env_file:
+      - ./.env.database
+    ports:
+      - "5432:5432"
