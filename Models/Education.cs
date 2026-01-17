@@ -10,6 +10,5 @@ namespace PortfolioAPI.Models
         public DateTime? End { get; set; }
         public string? ImagePath { get; set; }
         public string? Description { get; set; }
-        public int DisplayOrder { get; set; }
     }
 }
