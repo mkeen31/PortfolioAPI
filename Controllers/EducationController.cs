@@ -6,7 +6,7 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/education")]
 public class EducationController(PortfolioContext dbContext) : ControllerBase
 {
     private readonly PortfolioContext _dbContext = dbContext;

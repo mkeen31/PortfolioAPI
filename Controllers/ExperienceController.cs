@@ -6,7 +6,7 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/experience")]
 public class ExperienceController(PortfolioContext dbContext) : ControllerBase
 {
     private readonly PortfolioContext _dbContext = dbContext;

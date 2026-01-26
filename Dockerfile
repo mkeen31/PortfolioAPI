@@ -1,12 +1,13 @@
+# Build image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /app
 
 COPY . ./
 
-RUN dotnet restore
+RUN dotnet restore PortfolioAPI.csproj
 
-RUN dotnet publish -o out
+RUN dotnet publish PortfolioAPI.csproj -c Release -o out
 
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -15,4 +16,6 @@ WORKDIR /app
 
 COPY --from=build /app/out .
 
-ENTRYPOINT [ "dotnet", "PortfolioAPI.dll" ]
+EXPOSE 8080
+
+ENTRYPOINT [ "dotnet" , "PortfolioAPI.dll" ]

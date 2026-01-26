@@ -6,7 +6,7 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/employment")]
 public class EmploymentController(PortfolioContext dbContext) : ControllerBase
 {
     private readonly PortfolioContext _dbContext = dbContext;
@@ -20,7 +20,7 @@ public class EmploymentController(PortfolioContext dbContext) : ControllerBase
             return NotFound();
         }
         return Ok(employment);
-        
+
     }
 
     [HttpGet]
@@ -31,7 +31,7 @@ public class EmploymentController(PortfolioContext dbContext) : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("[action]")]
+    [HttpPost("add")]
     public IActionResult Add()
     {
         // TODO: Implement
