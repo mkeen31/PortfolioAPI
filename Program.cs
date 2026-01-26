@@ -22,11 +22,37 @@ builder.Services.AddCors(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<PortfolioContext>(options => 
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PortfolioContext"))
+builder.Services.AddDbContext<PortfolioContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("PortfolioContext") 
+        ?? throw new InvalidOperationException("Connection string 'PortfolioContext' not found.");
+    options.UseNpgsql(connectionString);
+}
 );
 
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    // Set up reverse proxy settings for prod environment
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    });
+
+    app.UseExceptionHandler(handler =>
+    {
+        handler.Run(async context => await Results.Problem().ExecuteAsync(context));
+    });
+}
+
+app.UseStatusCodePages();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -41,15 +67,12 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<PortfolioContext>();
     context.Database.EnsureCreated();
-}
 
-if (!app.Environment.IsDevelopment())
-{
-    // Set up reverse proxy settings for prod environment
-    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    var pendingMigrations = context.Database.GetPendingMigrations();
+    if (pendingMigrations.Any())
     {
-        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-    });
+        throw new InvalidOperationException("Database migrations are pending. Please run the migrations before starting the application.");
+    }
 }
 
 app.UseHttpsRedirection();

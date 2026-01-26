@@ -1,0 +1,15 @@
+# Directories
+**/bin/
+**/obj/
+**/out/
+
+# Files
+Dockerfile*
+**/*.trx
+**/*.md
+**/*.ps1
+**/*.cmd
+**/*.sh
+
+appsettings*.json
+*.user

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PortfolioAPI.Data;
@@ -5,53 +6,32 @@ using PortfolioAPI.Data;
 namespace PortfolioAPI.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class EducationController : ControllerBase
+[Route("api/education")]
+public class EducationController(PortfolioContext dbContext) : ControllerBase
 {
-    private readonly ILogger<EducationController> _logger;
-    private readonly PortfolioContext _context;
-
-    public EducationController(ILogger<EducationController> logger, PortfolioContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    private readonly PortfolioContext _dbContext = dbContext;
 
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        try 
+
+        var education = await _dbContext.Educations.FirstOrDefaultAsync(x => x.Id == id);
+        if (education == null)
         {
-            var education = await _context.Educations.FirstOrDefaultAsync(x => x.Id == id);
-            if (education == null)
-            {
-                return NotFound();
-            }
-            return new JsonResult(education);
+            return NotFound();
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(0, ex, ex.Message);
-            return StatusCode(500);
-        }
+        return Ok(education);
+
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            var educations = await _context.Educations.ToListAsync();
-            return new JsonResult(educations);
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(0, ex, ex.Message);
-            return StatusCode(500);
-        }
+        var educations = await _dbContext.Educations.ToListAsync();
+        return Ok(educations);
     }
 
+    [Authorize]
     [HttpPost("[action]")]
     public IActionResult Add()
     {

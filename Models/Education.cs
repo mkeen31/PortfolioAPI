@@ -1,6 +1,6 @@
 namespace PortfolioAPI.Models
 {
-    public class Education 
+    public class Education
     {
         public int Id { get; set; }
         public string? Degree { get; set; }

@@ -1,6 +1,6 @@
 namespace PortfolioAPI.Models
 {
-    public class Experience 
+    public class Experience
     {
         public int Id { get; set; }
         public string? Name { get; set; }
